@@ -85,7 +85,7 @@ export default function Countdown({ target, enabled = false, onComplete }: Props
     const onError = (err: GeolocationPositionError) => {
       console.warn('Geolocation error', err);
       if (err.code === 1) {
-        alert('Permesso posizione negato.\n\nPer riattivarlo:\n• iPhone: Impostazioni → Privacy → Localizzazione → Safari → Consenti\n• Android: Impostazioni → App → Chrome → Permessi → Posizione → Consenti\n\nDopo lo sblocco potrai anche cliccare direttamente sulla mappa.');
+        alert('Permesso posizione negato.\n\nPer riattivarlo:\n• iPhone: Impostazioni → Privacy → Localizzazione → Safari → Consenti\n• Android: Impostazioni → App → Chrome → Permessi → Posizione → Consenti\n\nIl GPS è obbligatorio per giocare.');
       } else if (err.code === 2) {
         alert('Posizione non disponibile.\n\nAttiva il GPS sul telefono e riprova.');
       } else if (err.code === 3) {
@@ -181,7 +181,9 @@ export default function Countdown({ target, enabled = false, onComplete }: Props
         }}>
           La mappa sarà disponibile il <strong>22 luglio 2026 alle 15:30</strong>.
           <br />
-          Attiva il GPS adesso per essere pronto fin dal primo istante.
+          Attiva il GPS adesso per sbloccare la mappa e iniziare a esplorare.
+          <br />
+          <span style={{ color: '#ff66cc' }}>Il GPS è obbligatorio per giocare.</span>
         </div>
         <div style={{ pointerEvents: 'auto' }}>
           {!watchId ? (

@@ -468,13 +468,7 @@ export default function MapView({ destinations, activeId, onSelect, onMapReady, 
       }
     } catch (e) {}
 
-    // Click sulla mappa per simulare posizione (fallback se GPS non disponibile)
-    map.on('click', (e: L.LeafletMouseEvent) => {
-      const { lat, lng } = e.latlng;
-      // Simula posizione player
-      window.dispatchEvent(new CustomEvent('vc:playerpos', { detail: { lat, lng } }));
-      window.dispatchEvent(new CustomEvent('vc:reveal', { detail: { lat, lng, radius: 120 } }));
-    });
+    // Click sulla mappa DISABILITATO: il gioco richiede GPS obbligatorio
 
     mapRef.current = map;
     onMapReady(map);
