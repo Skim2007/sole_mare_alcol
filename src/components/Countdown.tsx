@@ -67,28 +67,39 @@ export default function Countdown({ target, enabled = false, onComplete }: Props
 
   const startGeo = () => {
     if (!navigator.geolocation) {
-      alert('Geolocalizzazione non supportata.');
+      alert('Geolocalizzazione non supportata dal browser.');
       return;
     }
-    const id = navigator.geolocation.watchPosition(
-      (pos) => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        const acc = pos.coords.accuracy || 80;
-        setGeoOk(true);
-        window.dispatchEvent(new CustomEvent('vc:playerpos', { detail: { lat, lng } }));
-        window.dispatchEvent(new CustomEvent('vc:reveal', { detail: { lat, lng, radius: Math.max(80, acc) } }));
-      },
-      (err) => {
-        console.warn('Geolocation error', err);
-        if (err.code === 1) {
-          alert('Permesso posizione negato.\n\nIl GPS richiede HTTPS.\n\n👉 In alternativa, dopo lo sblocco potrai cliccare direttamente sulla mappa.');
-        } else {
-          alert('Errore geolocalizzazione: ' + err.message);
-        }
-      },
-      { enableHighAccuracy: true, maximumAge: 30000, timeout: 27000 }
-    );
+    // Reset stato
+    setGeoOk(false);
+
+    const onSuccess = (pos: GeolocationPosition) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      const acc = pos.coords.accuracy || 80;
+      setGeoOk(true);
+      window.dispatchEvent(new CustomEvent('vc:playerpos', { detail: { lat, lng } }));
+      window.dispatchEvent(new CustomEvent('vc:reveal', { detail: { lat, lng, radius: Math.max(80, acc) } }));
+    };
+
+    const onError = (err: GeolocationPositionError) => {
+      console.warn('Geolocation error', err);
+      if (err.code === 1) {
+        alert('Permesso posizione negato.\n\nPer riattivarlo:\n• iPhone: Impostazioni → Privacy → Localizzazione → Safari → Consenti\n• Android: Impostazioni → App → Chrome → Permessi → Posizione → Consenti\n\nDopo lo sblocco potrai anche cliccare direttamente sulla mappa.');
+      } else if (err.code === 2) {
+        alert('Posizione non disponibile.\n\nAttiva il GPS sul telefono e riprova.');
+      } else if (err.code === 3) {
+        alert('Timeout.\n\nRiprova tra qualche istante.');
+      } else {
+        alert('Errore: ' + err.message);
+      }
+    };
+
+    const id = navigator.geolocation.watchPosition(onSuccess, onError, {
+      enableHighAccuracy: true,
+      maximumAge: 15000,
+      timeout: 20000
+    });
     setWatchId(id as unknown as number);
   };
 
@@ -125,7 +136,6 @@ export default function Countdown({ target, enabled = false, onComplete }: Props
       color: '#fff',
       fontFamily: 'Orbitron, sans-serif',
       textAlign: 'center',
-      pointerEvents: 'none',
       padding: '24px',
     }}>
       <div style={{ maxWidth: '720px', width: '100%' }}>
