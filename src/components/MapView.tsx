@@ -421,8 +421,6 @@ export default function MapView({ destinations, activeId, onSelect, onMapReady, 
       marker.on('click', () => {
         marker.openPopup();
         onSelect(d.id);
-        const clickRadius = d.id === 'rivazzurra' ? 340 : d.id === 'riccione-ceccarini' ? 420 : d.id === 'rimini-porto' ? 340 : d.isMinor ? 180 : 260;
-        animateReveal(d.coords[0], d.coords[1], clickRadius);
       });
       // hide marker element initially (will pop when revealed)
       setTimeout(() => {
