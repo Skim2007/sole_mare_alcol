@@ -35,3 +35,4 @@
 - Il repo si chiama `sole_mare_alcol` (con underscore)
 - HTTPS è incluso automaticamente → il GPS funzionerà sul telefono
 - Le immagini (`player_icon.png`, `poster.png`) sono già nella cartella `public/` e saranno caricate correttamente
+- **GPS obbligatorio**: il gioco funziona solo con la geolocalizzazione attiva; il click sulla mappa è disabilitato

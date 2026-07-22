@@ -5,10 +5,11 @@ interface Props {
   destinations: Destination[];
   activeId: string | null;
   discoveredIds: string[];
+  explorePct: number;
   onSelect: (id: string) => void;
 }
 
-export default function Sidebar({ destinations, activeId, discoveredIds, onSelect }: Props) {
+export default function Sidebar({ destinations, activeId, discoveredIds, explorePct, onSelect }: Props) {
   const [open, setOpen] = useState(false);
   const discovered = destinations.filter((dest) => discoveredIds.includes(dest.id));
   const hiddenCount = destinations.length - discovered.length;
@@ -37,6 +38,8 @@ export default function Sidebar({ destinations, activeId, discoveredIds, onSelec
                   <div style={{ fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: '#00e5ff' }}>Posti scoperti</div>
                   <div style={{ fontSize: 12, color: '#76ff03' }}>{discovered.length}/{destinations.length}</div>
                 </div>
+                <div style={{ fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: '#00e5ff', marginBottom: 6 }}>Esplorazione</div>
+                <div style={{ fontSize: 26, fontWeight: 900, color: '#fff', textShadow: '0 0 14px rgba(0,229,255,0.35)', marginBottom: 6 }}>{explorePct}%</div>
                 <div className="destinations-list">
                   {discovered.map((dest) => (
                     <div

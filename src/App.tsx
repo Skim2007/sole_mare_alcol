@@ -10,6 +10,7 @@ export default function App() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [discoveredIds, setDiscoveredIds] = useState<string[]>([]);
   const [unlocked, setUnlocked] = useState(false);
+  const [explorePct, setExplorePct] = useState(0);
   const mapRef = useRef<L.Map | null>(null);
 
   // Check localStorage per lo stato di sblocco
@@ -26,6 +27,15 @@ export default function App() {
 
   const handleDiscover = useCallback((id: string) => {
     setDiscoveredIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  }, []);
+
+  useEffect(() => {
+    const h = (ev: Event) => {
+      const e = ev as CustomEvent<{ pct: number }>;
+      setExplorePct(e.detail.pct);
+    };
+    window.addEventListener('vc:explorepct', h as EventListener);
+    return () => window.removeEventListener('vc:explorepct', h as EventListener);
   }, []);
 
   useEffect(() => {
@@ -133,6 +143,7 @@ export default function App() {
         destinations={DESTINATIONS}
         activeId={activeId}
         discoveredIds={discoveredIds}
+        explorePct={explorePct}
         onSelect={handleSelect}
       />
       <HUD />
