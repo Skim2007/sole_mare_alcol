@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 interface Props {
-  target?: string | Date; // target date as local Date or parsable string
+  target?: string | Date;
   enabled?: boolean;
   onComplete?: () => void;
 }
@@ -11,6 +11,8 @@ export default function Countdown({ target, enabled = false, onComplete }: Props
   const [completed, setCompleted] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(true);
   const [pointer, setPointer] = useState<{ x: number; y: number }>({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const [watchId, setWatchId] = useState<number | null>(null);
+  const [geoOk, setGeoOk] = useState<boolean>(false);
 
   const targetDate = useMemo(() => {
     if (!target) return null;
@@ -49,6 +51,55 @@ export default function Countdown({ target, enabled = false, onComplete }: Props
       window.removeEventListener('touchmove', onTouch);
     };
   }, []);
+
+  // GPS activation during countdown
+  useEffect(() => {
+    if (!enabled) return;
+    const handler = (ev: Event) => {
+      const e = ev as CustomEvent<{ lat: number; lng: number }>;
+      const { lat, lng } = e.detail;
+      window.dispatchEvent(new CustomEvent('vc:playerpos', { detail: { lat, lng } }));
+      window.dispatchEvent(new CustomEvent('vc:reveal', { detail: { lat, lng, radius: 120 } }));
+    };
+    window.addEventListener('vc:reveal', handler as EventListener);
+    return () => window.removeEventListener('vc:reveal', handler as EventListener);
+  }, [enabled]);
+
+  const startGeo = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocalizzazione non supportata.');
+      return;
+    }
+    const id = navigator.geolocation.watchPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const acc = pos.coords.accuracy || 80;
+        setGeoOk(true);
+        window.dispatchEvent(new CustomEvent('vc:playerpos', { detail: { lat, lng } }));
+        window.dispatchEvent(new CustomEvent('vc:reveal', { detail: { lat, lng, radius: Math.max(80, acc) } }));
+      },
+      (err) => {
+        console.warn('Geolocation error', err);
+        if (err.code === 1) {
+          alert('Permesso posizione negato.\n\nIl GPS richiede HTTPS.\n\n👉 In alternativa, dopo lo sblocco potrai cliccare direttamente sulla mappa.');
+        } else {
+          alert('Errore geolocalizzazione: ' + err.message);
+        }
+      },
+      { enableHighAccuracy: true, maximumAge: 30000, timeout: 27000 }
+    );
+    setWatchId(id as unknown as number);
+  };
+
+  const stopGeo = () => {
+    if (watchId != null) {
+      navigator.geolocation.clearWatch(watchId);
+      window.dispatchEvent(new CustomEvent('vc:playeroff'));
+      setWatchId(null);
+      setGeoOk(false);
+    }
+  };
 
   if (!enabled || !targetDate || !visible) return null;
 
@@ -116,9 +167,50 @@ export default function Countdown({ target, enabled = false, onComplete }: Props
           opacity: 0.75,
           lineHeight: 1.6,
           padding: '0 12px',
+          marginBottom: 18,
         }}>
           La mappa sarà disponibile il <strong>22 luglio 2026 alle 15:30</strong>.
-          Torna su questo link e la scoperta si attiverà automaticamente.
+          <br />
+          Attiva il GPS adesso per essere pronto fin dal primo istante.
+        </div>
+        <div style={{ pointerEvents: 'auto' }}>
+          {!watchId ? (
+            <button
+              onClick={startGeo}
+              style={{
+                fontFamily: 'Orbitron, sans-serif',
+                fontSize: 'clamp(12px, 2.5vw, 14px)',
+                padding: '12px 18px',
+                borderRadius: 999,
+                border: '1px solid rgba(255,20,147,0.6)',
+                color: '#fff',
+                background: 'rgba(0,0,0,0.6)',
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+              }}
+            >
+              📍 Attiva GPS
+            </button>
+          ) : (
+            <button
+              onClick={stopGeo}
+              style={{
+                fontFamily: 'Orbitron, sans-serif',
+                fontSize: 'clamp(11px, 2vw, 13px)',
+                padding: '10px 16px',
+                borderRadius: 999,
+                border: '1px solid rgba(118,255,3,0.5)',
+                color: '#76ff03',
+                background: 'rgba(0,0,0,0.6)',
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+              }}
+            >
+              {geoOk ? '✓ GPS attivo — Chiudi' : '⏹ Chiudi GPS'}
+            </button>
+          )}
         </div>
       </div>
     </div>
