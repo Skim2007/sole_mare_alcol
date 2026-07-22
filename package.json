@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://TUO_USERNAME.github.io/sole-mare-alcol/",
+  "homepage": "https://TUO_USERNAME.github.io/sole_mare_alcol/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
