@@ -20,7 +20,7 @@
 
 3. **Abilita GitHub Pages:**
    - Vai su GitHub → Settings → Pages
-   - Sorgente: seleziona branch `main` e cartella `/` (root)
+   - Sorgente: seleziona branch `main` e cartella `/docs`
    - Clicca Save
 
 4. **Attendi 1-2 minuti.**

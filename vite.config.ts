@@ -13,6 +13,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  base: '/sole_mare_alcol/',
   build: {
     outDir: 'docs',
   },
